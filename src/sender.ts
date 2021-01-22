@@ -13,26 +13,51 @@ credentials-dev.json is something like
 }
  */
 
-const CREDENTIALS = require("../credentials-dev.json");
+/*
+Note: the working directory for ts-node is the `src` directory. Bah.
+ */
+let configFile = process.argv.length > 2 ? process.argv[2] : "../credentials-dev.json"
+console.info("Starting with configuration "+configFile);
+
+const CONFIG = require(configFile);
+
+
+if(CONFIG.authUrl == undefined)
+  CONFIG.authUrl = "https://auth.strm.services"
+
+if(CONFIG.apiUrl == undefined)
+  CONFIG.apiUrl = "https://in.strm.services/event"
+
+
+if(CONFIG.interval == undefined)
+  CONFIG.interval = 100;
+
+if(CONFIG.testDuration == undefined)
+  CONFIG.testDuration = 1800;
+console.info(`connecting to ${CONFIG.authUrl}, ${CONFIG.apiUrl}`)
+console.info(`Sending an event every ${CONFIG.interval}ms for ${CONFIG.testDuration}s.`)
+
+
 /* TODO this magic will go into the next version of the Stream Machine driver
  You'll only have to import the Stream Machine schema in the future
  */
+// @ts-ignore
 const SCHEMA_ID = KioskEvent.schema['namespace'].split(".").slice(3).join("_");
 assert("nps_unified_v1" == SCHEMA_ID);
 let SERIALIZATION_TYPE = Type.forSchema(<Schema>KioskEvent.schema);
 
-async function delay(ms){
+async function delay(ms: number){
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function send1(sender, event) {
+async function send1(sender: Sender, event: KioskEvent) {
   try {
     const r = await sender.send(event);
     if (r.status !== 204) {
       console.debug(`RESULT:`, r)
     }
   } catch (e) {
-      console.error(e);
+      console.error(`Error: ${e}`);
   }
 }
 
@@ -45,9 +70,7 @@ async function startSender() {
      */
 
   const sender = new Sender({
-      ...CREDENTIALS,
-      apiUrl: "https://in.strm.services/event",
-      authUrl: "https://auth.strm.services",
+      ...CONFIG,
       schemaId: SCHEMA_ID,
       type: SERIALIZATION_TYPE
   });
@@ -59,12 +82,15 @@ async function startSender() {
 
   await sender.connect().catch(e => { console.error(`Connect error ${e}`); });
 
-  setInterval(() => {
+  let timer = setInterval(() => {
     send1(sender, EVENT());
-  }, 300)
-    // run for half an hour
-  await delay(18000000);
+  }, CONFIG.interval)
 
+
+  await delay(CONFIG.testDuration * 1000);
+  console.info("test is done")
+  clearInterval(timer);
+  console.info("disconnecting sender")
 
   await sender.disconnect();
 }
@@ -92,6 +118,7 @@ let EVENT = () : KioskEvent => {
   let consentLevels = consentLevelOptions[Math.floor(Math.random()*consentLevelOptions.length)];
   return {
     schema(): object {
+      // @ts-ignore
       return undefined;
     }, subject(): string {
       return "";
@@ -102,7 +129,7 @@ let EVENT = () : KioskEvent => {
     article_in_view: 10,
     article_rank: 1,
     article_title: "",
-    brand_source: pickRandom([null, "Kiosk"]),
+    brand_source: pickRandom(["", "Kiosk"]),
     consent_level: "", // TODO strmMeta.consentLevels is leading!
     customer_id: randomString("customer", 100),
     device_id: randomString("device", 100),
