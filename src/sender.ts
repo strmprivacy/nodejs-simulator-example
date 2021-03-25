@@ -5,28 +5,28 @@ import {Schema} from "avsc";
 import * as assert from "assert";
 
 /*
-credentials-dev.json is something like
+credentials.json is something like
 {
     "billingId": "...", // via strm auth show
     "clientId": "...", // via strm streams create ...
-    "secret": "..." // same
+    "clientSecret": "..." // same
 }
  */
 
 /*
 Note: the working directory for ts-node is the `src` directory. Bah.
  */
-let configFile = process.argv.length > 2 ? process.argv[2] : "../credentials-dev.json"
+let configFile = process.argv.length > 2 ? process.argv[2] : "../credentials.json"
 console.info("Starting with configuration "+configFile);
 
 const CONFIG = require(configFile);
 
 
-if(CONFIG.authUrl == undefined)
-  CONFIG.authUrl = "https://auth.strm.services"
+if(CONFIG.stsUrl == undefined)
+  CONFIG.stsUrl = "https://auth.strm.services"
 
-if(CONFIG.apiUrl == undefined)
-  CONFIG.apiUrl = "https://in.strm.services/event"
+if(CONFIG.gatewayUrl == undefined)
+  CONFIG.gatewayUrl = "https://in.strm.services/event"
 
 
 if(CONFIG.interval == undefined)
@@ -34,7 +34,7 @@ if(CONFIG.interval == undefined)
 
 if(CONFIG.testDuration == undefined)
   CONFIG.testDuration = 1800;
-console.info(`connecting to ${CONFIG.authUrl}, ${CONFIG.apiUrl}`)
+console.info(`connecting to ${CONFIG.authUrl}, ${CONFIG.gatewayUrl}`)
 console.info(`Sending an event every ${CONFIG.interval}ms for ${CONFIG.testDuration}s.`)
 
 
@@ -62,10 +62,7 @@ async function send1(sender: Sender, event: KioskEvent) {
 }
 
 async function startSender() {
-    /* authUrl and apiUrl default to the Stream Machine production endpoints in
-     strm.services. They only need to be set when you're connecting to
-     non-production developer endpoints.
-
+    /*
      we need three parameters for the stream descriptor: billingId, clientId and secret.
      */
 
