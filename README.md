@@ -24,7 +24,7 @@ streams:
 
 # Follow along with the documentation
 
-Browse to [the documentation](https://docs.streammachine.io/docs/0.1.0/hla.html).
+Browse to [the documentation](https://docs.streammachine.io).
 
 # Create a stream
 
@@ -47,14 +47,13 @@ strm streams create demo
 You need the credentials together with your `billing-id` if you want to send
 data.
 
-For the demonstration with Typescript, create file named `credentials-dev.json`
-with your billing-id, clientId and secret in it (named `secret`, not
-`clientSecret`)
+For the demonstration with Typescript, create file named `credentials.json`
+with your billing-id, clientId and clientSecret in it.
 
     {
         "billingId": "...",
         "clientId": "...",
-        "secret": "..."
+        "clientSecret": "..."
     }
 
 You should be able to start sending data:
@@ -73,14 +72,14 @@ unfortunately not yet customer facing.
 # Retrieving Data
 
 The demo we gave shows events being sent in batches to AWS S3. Follow along with
-the [S3 documentation](https://docs.streammachine.io/docs/0.1.0/quickstart/creating-streams.html#_exporting_to_s3) to create a
+the [S3 documentation](https://docs.streammachine.io/docs/0.1.0/quickstart/index.html) to create a
 credentials file that Stream Machine can use to store events from your stream
 into an S3 bucket that you control footnote:[we'll improve the documentation to
 show how to give more restrictive access to S3]
 
 
 Once the Sink has been set up, you need to create an _exporter_ that
-periodically batches data into your sink. See the [documentation](https://docs.streammachine.io/docs/0.1.0/quickstart/creating-streams.html#_create_an_exporter).
+periodically batches data into your sink. See the [documentation](https://docs.streammachine.io/docs/0.1.0/quickstart/creating-streams.html#_exporting_to_s3).
 
 With the exporter created you should be able to see json lines files in your s3
 bucket. Note: there is no mechanism yet to show exporter failures (permissions

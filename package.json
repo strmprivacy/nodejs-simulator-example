@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@chasdevs/avro-to-typescript": "^1.4.0",
-    "@streammachine.io/nodejs-driver": "1.2.0",
+    "@streammachine.io/nodejs-driver": "1.2.1",
     "@streammachine.io/schema-nps-unified": "1.0.0"
   }
 }
